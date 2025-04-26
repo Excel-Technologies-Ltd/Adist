@@ -108,9 +108,9 @@ app_license = "MIT"
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Customer": "adist_erp.overrides.customer.newCustomer"
+}
 
 # Document Events
 # ---------------
@@ -213,3 +213,31 @@ app_license = "MIT"
 # auth_hooks = [
 # 	"adist_erp.auth.validate"
 # ]
+
+fixtures = [
+	{
+        "dt": "Custom Field",
+        "filters": [
+            [
+                "name",
+                "in",
+                [
+                    "Sales Order-adist_last_payment_amount",
+                    "Sales Order-adist_last_payment_date",
+                    "Sales Order-adist_customer_outstanding_balance",
+                    "Sales Invoice-adist_last_payment_amount",
+                    "Sales Invoice-adist_last_payment_date",
+                    "Sales Invoice-adist_customer_outstanding_balance",
+                    "Sales Invoice-adist_sales_person_phone_no",
+                    "Sales Invoice-adist_sales_person",
+                    "Sales Order-adist_sales_person_phone_no",
+                    "Sales Order-adist_sales_person",
+                    "Sales Person-adist_sales_person_email",
+                    "Sales Person-adist_sales_person_phone_no",
+                    "Customer-adist_sales_person" , 
+                    "Sales Invoice-delivery_status"              
+                ],
+            ],
+        ]
+    },
+]
