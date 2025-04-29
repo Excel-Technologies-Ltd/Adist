@@ -1,0 +1,203 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-04-17 10:48:06.893721",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "area",
+  "column_break_j7eb8",
+  "time",
+  "clients_type",
+  "section_break_yhuwv",
+  "clients_name",
+  "concern_name",
+  "mobile_no",
+  "email_id",
+  "column_break_1lkgl",
+  "commodity",
+  "major_port",
+  "monthly_vol",
+  "competitor",
+  "section_break_fj88k",
+  "history",
+  "amended_from",
+  "section_break_cp7ew",
+  "image",
+  "address",
+  "longitude",
+  "latitude",
+  "is_set_location",
+  "location"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "area",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Area",
+   "reqd": 1
+  },
+  {
+   "fieldname": "clients_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Clients Type",
+   "options": "Existing Clients\nPipe Line\nNew",
+   "reqd": 1
+  },
+  {
+   "fieldname": "clients_name",
+   "fieldtype": "Data",
+   "label": "Clients Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "concern_name",
+   "fieldtype": "Data",
+   "label": "Concern Name"
+  },
+  {
+   "fieldname": "mobile_no",
+   "fieldtype": "Data",
+   "label": "Mobile No.",
+   "options": "Phone"
+  },
+  {
+   "fieldname": "email_id",
+   "fieldtype": "Data",
+   "label": "Email Id",
+   "options": "Email"
+  },
+  {
+   "fieldname": "commodity",
+   "fieldtype": "Data",
+   "label": "Commodity"
+  },
+  {
+   "fieldname": "major_port",
+   "fieldtype": "Data",
+   "label": "Major Port"
+  },
+  {
+   "fieldname": "monthly_vol",
+   "fieldtype": "Data",
+   "label": "Monthly Vol."
+  },
+  {
+   "fieldname": "competitor",
+   "fieldtype": "Data",
+   "label": "Competitor"
+  },
+  {
+   "fieldname": "column_break_j7eb8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_yhuwv",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_1lkgl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_fj88k",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "history",
+   "fieldtype": "Small Text",
+   "label": "History"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Sales Man Visit",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_cp7ew",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach",
+   "label": "Image"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Geolocation",
+   "label": "Location"
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Float",
+   "label": "Longitude"
+  },
+  {
+   "fieldname": "latitude",
+   "fieldtype": "Float",
+   "label": "Latitude"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_set_location",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Is Set Location"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-04-19 16:31:10.986493",
+ "modified_by": "Administrator",
+ "module": "Adist Erp",
+ "name": "Sales Man Visit",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

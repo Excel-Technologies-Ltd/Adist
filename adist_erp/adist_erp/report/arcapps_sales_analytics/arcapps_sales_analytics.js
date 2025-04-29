@@ -2,12 +2,6 @@
 // For license information, please see license.txt
 /* eslint-disable */
 
-
-
-// Copyright (c) 2016, Frappe Technologies Pvt. Ltd. and contributors
-// For license information, please see license.txt
-/* eslint-disable */
-
 frappe.query_reports["ArcApps Sales Analytics"] = {
 	filters: [
 		{
@@ -22,6 +16,7 @@ frappe.query_reports["ArcApps Sales Analytics"] = {
 				"Territory",
 				"Order Type",
 				"Project",
+				"Sales Person"
 			],
 			default: "Customer",
 			reqd: 1,
@@ -34,6 +29,16 @@ frappe.query_reports["ArcApps Sales Analytics"] = {
 					frappe.msgprint(__("Item, Item Group, and Order Type analytics are not available for Payment Entry. Please select a different Tree Type."));
 					frappe.query_report.set_filter_value('tree_type', 'Customer');
 				}
+				
+				// Show or hide sales_person filter based on tree_type
+				let sales_person_filter = frappe.query_report.get_filter('sales_person');
+				if (tree_type === 'Customer') {
+					sales_person_filter.df.hidden = 0;
+				} else {
+					sales_person_filter.df.hidden = 1;
+					frappe.query_report.set_filter_value('sales_person', '');
+				}
+				sales_person_filter.refresh();
 			}
 		},
 		{
@@ -70,6 +75,19 @@ frappe.query_reports["ArcApps Sales Analytics"] = {
 					value_quantity_filter.refresh();
 				}
 			}
+		},
+		{
+			fieldname: "sales_person",
+			label: __("Sales Person"),
+			fieldtype: "Link",
+			options: "Sales Person",
+			// get_query: function() {
+			// 	return {
+			// 		filters: {
+			// 			"role_profile_name": "Sales User"
+			// 		}
+			// 	};
+			// }
 		},
 		{
 			fieldname: "value_quantity",

@@ -1,5 +1,5 @@
 {
- "add_total_row": 0,
+ "add_total_row": 1,
  "columns": [],
  "creation": "2025-04-26 18:49:07.722034",
  "disable_prepared_report": 0,
@@ -9,7 +9,7 @@
  "filters": [],
  "idx": 0,
  "is_standard": "Yes",
- "modified": "2025-04-26 18:49:27.642930",
+ "modified": "2025-04-29 11:03:03.942610",
  "modified_by": "Administrator",
  "module": "Adist Erp",
  "name": "ArcApps Sales Analytics",

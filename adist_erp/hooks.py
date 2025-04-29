@@ -235,7 +235,12 @@ fixtures = [
                     "Sales Person-adist_sales_person_email",
                     "Sales Person-adist_sales_person_phone_no",
                     "Customer-adist_sales_person" , 
-                    "Sales Invoice-delivery_status"              
+                    "Sales Invoice-delivery_status",
+                    "Sales Invoice Item-total_value",
+                    "Sales Invoice Item-discount_total",
+                    "Stock Entry-adist_customer",
+                    "Customer-tin",
+                    "Customer-bin"
                 ],
             ],
         ]

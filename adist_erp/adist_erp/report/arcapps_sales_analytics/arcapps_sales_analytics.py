@@ -43,7 +43,7 @@ class Analytics:
 	def run(self):
 		self.get_columns()
 		self.get_data()
-		self.get_chart_data()
+		
 
 		# Skipping total row for tree-view reports
 		skip_total_row = 0
@@ -51,7 +51,7 @@ class Analytics:
 		if self.filters.tree_type in ["Supplier Group", "Item Group", "Customer Group", "Territory"]:
 			skip_total_row = 1
 
-		return self.columns, self.data, None, self.chart, None, skip_total_row
+		return self.columns, self.data, None, None, None, skip_total_row
 
 	def get_columns(self):
 		self.columns = [
@@ -68,6 +68,17 @@ class Analytics:
 				{
 					"label": _(self.filters.tree_type + " Name"),
 					"fieldname": "entity_name",
+					"fieldtype": "Data",
+					"width": 140,
+				}
+			)
+
+		# Add Sales Person column if tree_type is Customer
+		if self.filters.tree_type == "Customer" and self.filters.sales_person:
+			self.columns.append(
+				{
+					"label": _("Sales Person"),
+					"fieldname": "sales_person",
 					"fieldtype": "Data",
 					"width": 140,
 				}
@@ -119,6 +130,10 @@ class Analytics:
 		elif self.filters.tree_type == "Project":
 			self.get_sales_transactions_based_on_project()
 			self.get_rows()
+		elif self.filters.tree_type == "Sales Person":
+			self.get_sales_transactions_based_on_sales_person()
+			self.get_rows()
+
 
 	def get_sales_transactions_based_on_order_type(self):
 		if self.filters["value_quantity"] == "Value":
@@ -158,47 +173,80 @@ class Analytics:
 			if self.filters.doc_type == "Payment Entry":
 				entity = "party as entity"
 				entity_name = "party_name as entity_name"
-				additional_filter = "and payment_type='Receive' and party_type='Customer'"  # Only include receipt payments for customers
+				
+				# Add sales person field for Payment Entry when Customer is selected
+				if self.filters.sales_person:
+					sales_person_field = """COALESCE((SELECT adist_sales_person FROM tabCustomer 
+					                         WHERE name = `tabPayment Entry`.party), '') as sales_person"""
+					additional_filter = """and payment_type='Receive' and party_type='Customer' 
+					                         and exists (select 1 from tabCustomer 
+					                         where name = `tabPayment Entry`.party 
+					                         and adist_sales_person = %s)"""
+					filter_params = (self.filters.company, self.filters.sales_person, self.filters.from_date, self.filters.to_date)
+				else:
+					sales_person_field = """COALESCE((SELECT adist_sales_person FROM tabCustomer 
+					                         WHERE name = `tabPayment Entry`.party), '') as sales_person"""
+					additional_filter = "and payment_type='Receive' and party_type='Customer'"
+					filter_params = (self.filters.company, self.filters.from_date, self.filters.to_date)
 			else:
 				entity = "customer as entity"
 				entity_name = "customer_name as entity_name"
-				additional_filter = ""
+				
+				# Add sales person field for other doctypes when Customer is selected
+				if self.filters.sales_person:
+					sales_person_field = """COALESCE((SELECT adist_sales_person FROM tabCustomer 
+					                         WHERE name = `tab{0}`.customer), '') as sales_person""".format(self.filters.doc_type)
+					additional_filter = """and exists (select 1 from tabCustomer 
+					                      where name = `tab{0}`.customer 
+					                      and adist_sales_person = %s)""".format(self.filters.doc_type)
+					filter_params = (self.filters.company, self.filters.sales_person, self.filters.from_date, self.filters.to_date)
+				else:
+					sales_person_field = """COALESCE((SELECT adist_sales_person FROM tabCustomer 
+					                         WHERE name = `tab{0}`.customer), '') as sales_person""".format(self.filters.doc_type)
+					additional_filter = ""
+					filter_params = (self.filters.company, self.filters.from_date, self.filters.to_date)
 		else:  # Supplier
 			if self.filters.doc_type == "Payment Entry":
 				entity = "party as entity"
 				entity_name = "party_name as entity_name"
-				additional_filter = "and payment_type='Pay' and party_type='Supplier'"  # Only include payment transactions for suppliers
+				sales_person_field = "'' as sales_person"  # Suppliers don't have sales persons
+				additional_filter = "and payment_type='Pay' and party_type='Supplier'"
+				filter_params = (self.filters.company, self.filters.from_date, self.filters.to_date)
 			else:
 				entity = "supplier as entity"
 				entity_name = "supplier_name as entity_name"
+				sales_person_field = "'' as sales_person"  # Suppliers don't have sales persons
 				additional_filter = ""
+				filter_params = (self.filters.company, self.filters.from_date, self.filters.to_date)
 
 		if self.filters.doc_type == "Payment Entry":
 			self.entries = frappe.db.sql(
 				f"""
-				select {entity}, {entity_name}, {value_field}, {self.date_field}
+				select {entity}, {entity_name}, {sales_person_field}, {value_field}, {self.date_field}
 				from `tab{self.filters.doc_type}`
 				where docstatus = 1 and company = %s
 				{additional_filter}
 				and {self.date_field} between %s and %s
 				""",
-				(self.filters.company, self.filters.from_date, self.filters.to_date),
+				filter_params,
 				as_dict=1,
 			)
 		else:
-			self.entries = frappe.get_all(
-				self.filters.doc_type,
-				fields=[entity, entity_name, value_field, self.date_field],
-				filters={
-					"docstatus": 1,
-					"company": self.filters.company,
-					self.date_field: ("between", [self.filters.from_date, self.filters.to_date]),
-				},
-			)
+			query = f"""
+				select {entity}, {entity_name}, {sales_person_field}, {value_field}, {self.date_field}
+				from `tab{self.filters.doc_type}`
+				where docstatus = 1 and company = %s
+				{additional_filter}
+				and {self.date_field} between %s and %s
+			"""
+			self.entries = frappe.db.sql(query, filter_params, as_dict=1)
 
 		self.entity_names = {}
+		self.sales_persons = {}
 		for d in self.entries:
 			self.entity_names.setdefault(d.entity, d.entity_name)
+			if hasattr(d, 'sales_person'):
+				self.sales_persons.setdefault(d.entity, d.sales_person)
 
 	def get_sales_transactions_based_on_items(self):
 		if self.filters["value_quantity"] == "Value":
@@ -237,15 +285,30 @@ class Analytics:
 				value_field = "paid_amount as value_field"
 			else:
 				value_field = "total_qty as value_field"
-
+				
 		additional_filter = ""
+		filter_params = (self.filters.company, self.filters.from_date, self.filters.to_date)
 		
 		if self.filters.tree_type == "Customer Group":
 			if self.filters.doc_type == "Payment Entry":
 				entity_field = "COALESCE((SELECT customer_group FROM tabCustomer WHERE name = `tabPayment Entry`.party), '') as entity"
-				additional_filter = "and payment_type='Receive' and party_type='Customer'"
+				
+				if self.filters.sales_person:
+					additional_filter = """and payment_type='Receive' and party_type='Customer'
+					                         and exists (select 1 from tabCustomer 
+					                         where name = `tabPayment Entry`.party 
+					                         and adist_sales_person = %s)"""
+					filter_params = (self.filters.company, self.filters.sales_person, self.filters.from_date, self.filters.to_date)
+				else:
+					additional_filter = "and payment_type='Receive' and party_type='Customer'"
 			else:
 				entity_field = "customer_group as entity"
+				
+				if self.filters.sales_person:
+					additional_filter = """and exists (select 1 from tabCustomer 
+					                      where name = `tab{0}`.customer 
+					                      and adist_sales_person = %s)""".format(self.filters.doc_type)
+					filter_params = (self.filters.company, self.filters.sales_person, self.filters.from_date, self.filters.to_date)
 		elif self.filters.tree_type == "Supplier Group":
 			if self.filters.doc_type == "Payment Entry":
 				entity_field = "COALESCE((SELECT supplier_group FROM tabSupplier WHERE name = `tabPayment Entry`.party), '') as entity"
@@ -256,9 +319,23 @@ class Analytics:
 		else:  # Territory
 			if self.filters.doc_type == "Payment Entry":
 				entity_field = "COALESCE((SELECT territory FROM tabCustomer WHERE name = `tabPayment Entry`.party), '') as entity"
-				additional_filter = "and payment_type='Receive' and party_type='Customer'"
+				
+				if self.filters.sales_person:
+					additional_filter = """and payment_type='Receive' and party_type='Customer'
+					                         and exists (select 1 from tabCustomer 
+					                         where name = `tabPayment Entry`.party 
+					                         and adist_sales_person = %s)"""
+					filter_params = (self.filters.company, self.filters.sales_person, self.filters.from_date, self.filters.to_date)
+				else:
+					additional_filter = "and payment_type='Receive' and party_type='Customer'"
 			else:
 				entity_field = "territory as entity"
+				
+				if self.filters.sales_person:
+					additional_filter = """and exists (select 1 from tabCustomer
+					                      where name = `tab{0}`.customer
+					                      and adist_sales_person = %s)""".format(self.filters.doc_type)
+					filter_params = (self.filters.company, self.filters.sales_person, self.filters.from_date, self.filters.to_date)
 
 		if self.filters.doc_type == "Payment Entry":
 			self.entries = frappe.db.sql(
@@ -269,19 +346,19 @@ class Analytics:
 				{additional_filter}
 				and {self.date_field} between %s and %s
 				""",
-				(self.filters.company, self.filters.from_date, self.filters.to_date),
+				filter_params,
 				as_dict=1,
 			)
 		else:
-			self.entries = frappe.get_all(
-				self.filters.doc_type,
-				fields=[entity_field, value_field, self.date_field],
-				filters={
-					"docstatus": 1,
-					"company": self.filters.company,
-					self.date_field: ("between", [self.filters.from_date, self.filters.to_date]),
-				},
-			)
+			query = f"""
+				select {entity_field}, {value_field}, {self.date_field}
+				from `tab{self.filters.doc_type}`
+				where docstatus = 1 and company = %s
+				{additional_filter}
+				and {self.date_field} between %s and %s
+			"""
+			self.entries = frappe.db.sql(query, filter_params, as_dict=1)
+			
 		self.get_groups()
 
 	def get_sales_transactions_based_on_item_group(self):
@@ -295,16 +372,32 @@ class Analytics:
 			self.entries = []
 			return
 
-		self.entries = frappe.db.sql(
-			f"""
-			select i.item_group as entity, i.{value_field} as value_field, s.{self.date_field}
-			from `tab{self.filters.doc_type} Item` i , `tab{self.filters.doc_type}` s
-			where s.name = i.parent and i.docstatus = 1 and s.company = %s
-			and s.{self.date_field} between %s and %s
-		""",
-			(self.filters.company, self.filters.from_date, self.filters.to_date),
-			as_dict=1,
-		)
+		if self.filters.sales_person and self.filters.tree_type == "Item Group":
+			# For Item Group with Sales Person filter, join with Sales Invoice to get customer info
+			self.entries = frappe.db.sql(
+				f"""
+				select i.item_group as entity, i.{value_field} as value_field, s.{self.date_field}
+				from `tab{self.filters.doc_type} Item` i 
+				join `tab{self.filters.doc_type}` s on s.name = i.parent
+				join tabCustomer c on c.name = s.customer
+				where i.docstatus = 1 and s.company = %s
+				and c.adist_sales_person = %s
+				and s.{self.date_field} between %s and %s
+				""",
+				(self.filters.company, self.filters.sales_person, self.filters.from_date, self.filters.to_date),
+				as_dict=1,
+			)
+		else:
+			self.entries = frappe.db.sql(
+				f"""
+				select i.item_group as entity, i.{value_field} as value_field, s.{self.date_field}
+				from `tab{self.filters.doc_type} Item` i , `tab{self.filters.doc_type}` s
+				where s.name = i.parent and i.docstatus = 1 and s.company = %s
+				and s.{self.date_field} between %s and %s
+				""",
+				(self.filters.company, self.filters.from_date, self.filters.to_date),
+				as_dict=1,
+			)
 
 		self.get_groups()
 
@@ -321,6 +414,23 @@ class Analytics:
 				value_field = "total_qty as value_field"
 
 		entity = "project as entity"
+		additional_filter = ""
+		filter_params = (self.filters.company, self.filters.from_date, self.filters.to_date)
+
+		if self.filters.sales_person and self.filters.doc_type != "Payment Entry":
+			# Add sales person filter for project view
+			additional_filter = """and exists (select 1 from tabCustomer
+			                      where name = `tab{0}`.customer
+			                      and adist_sales_person = %s)""".format(self.filters.doc_type)
+			filter_params = (self.filters.company, self.filters.sales_person, self.filters.from_date, self.filters.to_date)
+		elif self.filters.sales_person and self.filters.doc_type == "Payment Entry":
+			additional_filter = """and payment_type='Receive' and party_type='Customer'
+			                     and exists (select 1 from tabCustomer 
+			                     where name = `tabPayment Entry`.party 
+			                     and adist_sales_person = %s)"""
+			filter_params = (self.filters.company, self.filters.sales_person, self.filters.from_date, self.filters.to_date)
+		elif self.filters.doc_type == "Payment Entry":
+			additional_filter = "and ifnull(project, '') != ''"
 
 		if self.filters.doc_type == "Payment Entry":
 			self.entries = frappe.db.sql(
@@ -328,23 +438,94 @@ class Analytics:
 				select {entity}, {value_field}, {self.date_field}
 				from `tab{self.filters.doc_type}`
 				where docstatus = 1 and company = %s
-				and ifnull(project, '') != ''
+				{additional_filter}
 				and {self.date_field} between %s and %s
 				""",
-				(self.filters.company, self.filters.from_date, self.filters.to_date),
+				filter_params,
 				as_dict=1,
 			)
 		else:
-			self.entries = frappe.get_all(
-				self.filters.doc_type,
-				fields=[entity, value_field, self.date_field],
-				filters={
-					"docstatus": 1,
-					"company": self.filters.company,
-					"project": ["!=", ""],
-					self.date_field: ("between", [self.filters.from_date, self.filters.to_date]),
-				},
+			query = f"""
+				select {entity}, {value_field}, {self.date_field}
+				from `tab{self.filters.doc_type}`
+				where docstatus = 1 and company = %s
+				{additional_filter}
+				and ifnull(project, '') != ''
+				and {self.date_field} between %s and %s
+			"""
+			self.entries = frappe.db.sql(query, filter_params, as_dict=1)
+	def get_sales_transactions_based_on_sales_person(self):
+		if self.filters["value_quantity"] == "Value":
+			if self.filters.doc_type == "Payment Entry":
+				value_field = "paid_amount as value_field"
+			else:
+				value_field = "base_net_total as value_field"
+		else:
+			if self.filters.doc_type == "Payment Entry":
+				value_field = "paid_amount as value_field"  # Quantity doesn't make sense
+			else:
+				value_field = "total_qty as value_field"
+
+		additional_filter = ""
+		filter_params = (self.filters.company, self.filters.from_date, self.filters.to_date)
+
+		if self.filters.doc_type == "Payment Entry":
+			# Payment Entry sales person logic
+			additional_filter = """
+				and payment_type='Receive' and party_type='Customer'
+				and exists (
+					select 1 from tabCustomer 
+					where name = `tabPayment Entry`.party 
+					and ifnull(adist_sales_person, '') != ''
+				)
+			"""
+		else:
+			# Other doctypes sales person logic
+			additional_filter = """
+				and exists (
+					select 1 from tabCustomer 
+					where name = `tab{0}`.customer 
+					and ifnull(adist_sales_person, '') != ''
+				)
+			""".format(self.filters.doc_type)
+
+		# Now fetch: group by sales person
+		if self.filters.doc_type == "Payment Entry":
+			self.entries = frappe.db.sql(
+				f"""
+				select 
+					(select adist_sales_person from tabCustomer where name = `tabPayment Entry`.party) as entity,
+					{value_field},
+					{self.date_field}
+				from `tab{self.filters.doc_type}`
+				where docstatus = 1 and company = %s
+				{additional_filter}
+				and {self.date_field} between %s and %s
+				""",
+				filter_params,
+				as_dict=1,
 			)
+		else:
+			self.entries = frappe.db.sql(
+				f"""
+				select 
+					(select adist_sales_person from tabCustomer where name = `tab{self.filters.doc_type}`.customer) as entity,
+					{value_field},
+					{self.date_field}
+				from `tab{self.filters.doc_type}`
+				where docstatus = 1 and company = %s
+				{additional_filter}
+				and {self.date_field} between %s and %s
+				""",
+				filter_params,
+				as_dict=1,
+			)
+
+		# Prepare entity name dictionary
+		self.entity_names = {}
+		for d in self.entries:
+			self.entity_names.setdefault(d.entity, d.entity)  # Sales Person is its own name
+
 
 	def get_rows(self):
 		self.data = []
@@ -355,6 +536,11 @@ class Analytics:
 				"entity": entity,
 				"entity_name": self.entity_names.get(entity) if hasattr(self, "entity_names") else None,
 			}
+			
+			# Add sales person to row if available
+			if self.filters.tree_type == "Customer" and self.filters.sales_person and hasattr(self, "sales_persons"):
+				row["sales_person"] = self.sales_persons.get(entity, "")
+				
 			total = 0
 			for end_date in self.periodic_daterange:
 				period = self.get_period(end_date)
@@ -502,18 +688,3 @@ class Analytics:
 			frappe.db.sql(""" select name, supplier_group from `tabSupplier`""")
 		)
 
-	def get_chart_data(self):
-		length = len(self.columns)
-
-		if self.filters.tree_type in ["Customer", "Supplier"]:
-			labels = [d.get("label") for d in self.columns[2 : length - 1]]
-		elif self.filters.tree_type == "Item":
-			labels = [d.get("label") for d in self.columns[3 : length - 1]]
-		else:
-			labels = [d.get("label") for d in self.columns[1 : length - 1]]
-		self.chart = {"data": {"labels": labels, "datasets": []}, "type": "line"}
-
-		if self.filters["value_quantity"] == "Value":
-			self.chart["fieldtype"] = "Currency"
-		else:
-			self.chart["fieldtype"] = "Float"
