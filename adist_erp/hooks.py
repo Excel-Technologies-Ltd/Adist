@@ -109,7 +109,8 @@ app_license = "MIT"
 # Override standard doctype classes
 
 override_doctype_class = {
-	"Customer": "adist_erp.overrides.customer.newCustomer"
+	"Customer": "adist_erp.overrides.customer.newCustomer",
+	"Sales Invoice": "adist_erp.overrides.sales_invoice.NewSalesInvoice"
 }
 
 # Document Events
@@ -120,7 +121,7 @@ doc_events = {
 	"Sales Invoice": {
 		"on_update": "adist_erp.doc_events.sales_invoice.send_sales_invoice_sms",
 		"on_cancel": "adist_erp.doc_events.sales_invoice.send_sales_invoice_sms",
-		"on_update_after_submit": "adist_erp.doc_events.sales_invoice.send_sales_invoice_sms"
+		
 	}
 }
 
