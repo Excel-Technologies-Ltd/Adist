@@ -1,7 +1,3 @@
-# Copyright (c) 2013, Frappe Technologies Pvt. Ltd. and contributors
-# For license information, please see license.txt
-
-
 import frappe
 from frappe import _, scrub
 from frappe.utils import add_days, add_to_date, flt, getdate
@@ -73,8 +69,8 @@ class Analytics:
 				}
 			)
 
-		# Add Sales Person column if tree_type is Customer
-		if self.filters.tree_type == "Customer" and self.filters.sales_person:
+		# Add Sales Person column if tree_type is Customer (always show it for Customer view)
+		if self.filters.tree_type == "Customer":
 			self.columns.append(
 				{
 					"label": _("Sales Person"),
@@ -175,36 +171,21 @@ class Analytics:
 				entity_name = "party_name as entity_name"
 				
 				# Add sales person field for Payment Entry when Customer is selected
-				if self.filters.sales_person:
-					sales_person_field = """COALESCE((SELECT adist_sales_person FROM tabCustomer 
-					                         WHERE name = `tabPayment Entry`.party), '') as sales_person"""
-					additional_filter = """and payment_type='Receive' and party_type='Customer' 
-					                         and exists (select 1 from tabCustomer 
-					                         where name = `tabPayment Entry`.party 
-					                         and adist_sales_person = %s)"""
-					filter_params = (self.filters.company, self.filters.sales_person, self.filters.from_date, self.filters.to_date)
-				else:
-					sales_person_field = """COALESCE((SELECT adist_sales_person FROM tabCustomer 
-					                         WHERE name = `tabPayment Entry`.party), '') as sales_person"""
-					additional_filter = "and payment_type='Receive' and party_type='Customer'"
-					filter_params = (self.filters.company, self.filters.from_date, self.filters.to_date)
+				# Always fetch sales person for Customer view
+				sales_person_field = """COALESCE((SELECT adist_sales_person FROM tabCustomer 
+				                     WHERE name = `tabPayment Entry`.party), '') as sales_person"""
+				additional_filter = "and payment_type='Receive' and party_type='Customer'"
+				filter_params = (self.filters.company, self.filters.from_date, self.filters.to_date)
 			else:
 				entity = "customer as entity"
 				entity_name = "customer_name as entity_name"
 				
 				# Add sales person field for other doctypes when Customer is selected
-				if self.filters.sales_person:
-					sales_person_field = """COALESCE((SELECT adist_sales_person FROM tabCustomer 
-					                         WHERE name = `tab{0}`.customer), '') as sales_person""".format(self.filters.doc_type)
-					additional_filter = """and exists (select 1 from tabCustomer 
-					                      where name = `tab{0}`.customer 
-					                      and adist_sales_person = %s)""".format(self.filters.doc_type)
-					filter_params = (self.filters.company, self.filters.sales_person, self.filters.from_date, self.filters.to_date)
-				else:
-					sales_person_field = """COALESCE((SELECT adist_sales_person FROM tabCustomer 
-					                         WHERE name = `tab{0}`.customer), '') as sales_person""".format(self.filters.doc_type)
-					additional_filter = ""
-					filter_params = (self.filters.company, self.filters.from_date, self.filters.to_date)
+				# Always fetch sales person for Customer view
+				sales_person_field = """COALESCE((SELECT adist_sales_person FROM tabCustomer 
+				                     WHERE name = `tab{0}`.customer), '') as sales_person""".format(self.filters.doc_type)
+				additional_filter = ""
+				filter_params = (self.filters.company, self.filters.from_date, self.filters.to_date)
 		else:  # Supplier
 			if self.filters.doc_type == "Payment Entry":
 				entity = "party as entity"
@@ -537,8 +518,8 @@ class Analytics:
 				"entity_name": self.entity_names.get(entity) if hasattr(self, "entity_names") else None,
 			}
 			
-			# Add sales person to row if available
-			if self.filters.tree_type == "Customer" and self.filters.sales_person and hasattr(self, "sales_persons"):
+			# Always add sales person to row if available for Customer view
+			if self.filters.tree_type == "Customer" and hasattr(self, "sales_persons"):
 				row["sales_person"] = self.sales_persons.get(entity, "")
 				
 			total = 0
@@ -687,4 +668,3 @@ class Analytics:
 		self.parent_child_map = frappe._dict(
 			frappe.db.sql(""" select name, supplier_group from `tabSupplier`""")
 		)
-

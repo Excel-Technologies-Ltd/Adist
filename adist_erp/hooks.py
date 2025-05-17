@@ -241,9 +241,29 @@ fixtures = [
                     "Sales Invoice Item-discount_total",
                     "Stock Entry-adist_customer",
                     "Customer-tin",
-                    "Customer-bin"
+                    "Customer-bin",
+                    "Sales Invoice Item-adist_item",
+                    "Sales Invoice-adist_item_group",
                 ],
             ],
         ]
     },
+ {"dt": "Property Setter",
+  "filters": [
+    [
+        "name",
+        "in",
+        ["Sales Invoice-adist_item_group",
+        "Sales Invoice Item-item_code-fetch_from",
+        "Sales Invoice Item-main-field_order",
+        "Supplier-main-quick_entry",
+        "Customer-main-field_order",
+        "Customer-main-quick_entry",
+        "Item Price-main-quick_entry",
+        "Item-main-quick_entry",
+        "Sales Invoice-main-quick_entry,"
+         ]
+    ]
+  ]
+ }
 ]
