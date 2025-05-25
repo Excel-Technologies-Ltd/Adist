@@ -244,6 +244,13 @@ fixtures = [
                     "Customer-bin",
                     "Sales Invoice Item-adist_item",
                     "Sales Invoice-adist_item_group",
+                    "Sales Order Item-discount_total",
+                    "Sales Order Item-total_value",
+                    "Sales Order-item_group",
+                    "Purchase Order-item_group",
+                    "Purchase Invoice-adist_item_group",
+                    "Stock Entry-adist_sales_person"
+                    
                 ],
             ],
         ]
