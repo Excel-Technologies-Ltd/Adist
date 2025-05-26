@@ -249,7 +249,11 @@ fixtures = [
                     "Sales Order-item_group",
                     "Purchase Order-item_group",
                     "Purchase Invoice-adist_item_group",
-                    "Stock Entry-adist_sales_person"
+                    "Stock Entry-adist_sales_person",
+                    "Delivery Note-adist_item_group",
+                    "Stock Entry-adist_item_group",
+                    "Purchase Receipt-adist_item_group"
+                    
                     
                 ],
             ],
