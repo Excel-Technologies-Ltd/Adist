@@ -110,5 +110,21 @@
   "property_type": "Small Text",
   "row_name": null,
   "value": "adist_item.item_code"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Stock Entry",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "section_break_jwgn",
+  "is_system_generated": 0,
+  "modified": "2025-05-28 11:35:52.451550",
+  "module": null,
+  "name": "Stock Entry-section_break_jwgn-collapsible",
+  "property": "collapsible",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "0"
  }
 ]

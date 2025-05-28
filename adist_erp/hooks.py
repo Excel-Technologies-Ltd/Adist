@@ -252,7 +252,8 @@ fixtures = [
                     "Stock Entry-adist_sales_person",
                     "Delivery Note-adist_item_group",
                     "Stock Entry-adist_item_group",
-                    "Purchase Receipt-adist_item_group"
+                    "Purchase Receipt-adist_item_group",
+                    "Payment Entry-adist_sales_person"
                     
                     
                 ],
@@ -273,6 +274,8 @@ fixtures = [
         "Item Price-main-quick_entry",
         "Item-main-quick_entry",
         "Sales Invoice-main-quick_entry,"
+        "Stock Entry-main-field_order",
+        "Stock Entry-section_break_jwgn-collapsible",
          ]
     ]
   ]

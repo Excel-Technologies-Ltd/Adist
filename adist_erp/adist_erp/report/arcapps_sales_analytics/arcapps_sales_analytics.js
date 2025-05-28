@@ -32,13 +32,13 @@ frappe.query_reports["ArcApps Sales Analytics"] = {
 				
 				// Show or hide sales_person filter based on tree_type
 				let sales_person_filter = frappe.query_report.get_filter('sales_person');
-				if (tree_type === 'Customer') {
-					sales_person_filter.df.hidden = 0;
-				} else {
-					sales_person_filter.df.hidden = 1;
-					frappe.query_report.set_filter_value('sales_person', '');
-				}
-				sales_person_filter.refresh();
+				// if (tree_type === 'Customer') {
+				// 	sales_person_filter.df.hidden = 0;
+				// } else {
+				// 	sales_person_filter.df.hidden = 1;
+				// 	frappe.query_report.set_filter_value('sales_person', '');
+				// }
+				// sales_person_filter.refresh();
 			}
 		},
 		{
