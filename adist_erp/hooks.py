@@ -120,9 +120,11 @@ override_doctype_class = {
 doc_events = {
 	"Sales Invoice": {
 		"on_submit": "adist_erp.doc_events.sales_invoice.send_sales_invoice_sms",
-		"on_cancel": "adist_erp.doc_events.sales_invoice.send_sales_invoice_sms",
-		
-	}
+		"on_cancel": "adist_erp.doc_events.sales_invoice.send_sales_invoice_sms",	
+	},
+ "Stock Entry":{
+     "on_submit":"adist_erp.doc_events.stock_entry.create_material_receipt"
+ }
 }
 
 # Scheduled Tasks

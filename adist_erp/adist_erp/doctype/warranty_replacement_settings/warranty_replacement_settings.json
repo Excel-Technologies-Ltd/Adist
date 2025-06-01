@@ -1,0 +1,69 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-05-29 11:26:56.633892",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "good_stock_issue_warehouse",
+  "column_break_37reh",
+  "bad_stock_receipt_warehouse",
+  "column_break_reznj",
+  "auto_create_bad_stock_return"
+ ],
+ "fields": [
+  {
+   "fieldname": "good_stock_issue_warehouse",
+   "fieldtype": "Link",
+   "label": "Good Stock Issue Warehouse",
+   "mandatory_depends_on": "eval:doc.auto_create_bad_stock_return==1",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "bad_stock_receipt_warehouse",
+   "fieldtype": "Link",
+   "label": "Bad Stock Receipt Warehouse ",
+   "mandatory_depends_on": "eval:doc.auto_create_bad_stock_return==1",
+   "options": "Warehouse"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_create_bad_stock_return",
+   "fieldtype": "Check",
+   "label": "Auto Create Bad Stock Return"
+  },
+  {
+   "fieldname": "column_break_37reh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_reznj",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-05-29 11:30:12.274216",
+ "modified_by": "Administrator",
+ "module": "Adist Erp",
+ "name": "Warranty Replacement Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
