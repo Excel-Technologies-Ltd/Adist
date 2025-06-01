@@ -14,5 +14,19 @@ frappe.query_reports["Cheque in Hand"] = {
             "default": frappe.datetime.month_end(),
             "reqd": 1
         },
+        {
+            "fieldname": "customer",
+            "label": ("Customer"),
+            "fieldtype": "Link",
+            "options": "Customer",
+            "default": ""
+        },
+        {
+            "fieldname": "sales_person",
+            "label": ("Sales Person"),
+            "fieldtype": "Link",
+            "options": "Sales Person",
+            "default": ""
+        }
     ]
 }

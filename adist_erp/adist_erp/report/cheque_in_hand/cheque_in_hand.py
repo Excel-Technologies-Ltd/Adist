@@ -21,14 +21,16 @@ def get_columns():
         "Sales Person:Data:150",
         "Paid Amount:Currency:100",
         "Mode:Data:115",
-        "Account:Data:150"
+        "Account:Data:110",
+        "Cheque No:Data:110",
+        "Cheque Date:Date:100",
+        "Status:Data:100"
     ]
 
 def get_data(filters):
     conditions = """
-        pe.posting_date >= %(from_date)s AND 
-        pe.posting_date <= %(to_date)s AND 
-        pe.docstatus = 1
+        pe.mode_of_payment = 'Cheque in Hand'
+        AND DATE(pe.posting_date) BETWEEN %(from_date)s AND %(to_date)s
     """
 
     if filters.get("customer"):
@@ -46,7 +48,10 @@ def get_data(filters):
             c.adist_sales_person,
             pe.paid_amount,
             pe.mode_of_payment,
-            pe.paid_to
+            pe.paid_to,
+            pe.reference_no,
+            pe.reference_date,
+            pe.status
         FROM
             `tabPayment Entry` pe
         LEFT JOIN
