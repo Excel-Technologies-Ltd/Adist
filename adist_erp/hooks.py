@@ -109,7 +109,8 @@ app_license = "MIT"
 # Override standard doctype classes
 
 override_doctype_class = {
-	"Customer": "adist_erp.overrides.customer.newCustomer"
+	"Customer": "adist_erp.overrides.customer.newCustomer",
+	"Payroll Entry": "adist_erp.overrides.payroll_entry.PayrollEntry"
 }
 
 # Document Events
