@@ -28,7 +28,7 @@ def get_data(filters):
     conditions = """
         pe.posting_date >= %(from_date)s AND 
         pe.posting_date <= %(to_date)s AND 
-        pe.payment_type = 'Receive' AND
+        pe.payment_type = 'Pay' AND
         pe.docstatus = 1
     """
 
@@ -47,7 +47,7 @@ def get_data(filters):
             c.adist_sales_person,
             pe.paid_amount,
             pe.mode_of_payment,
-            pe.paid_to
+            pe.paid_from
         FROM
             `tabPayment Entry` pe
         LEFT JOIN
