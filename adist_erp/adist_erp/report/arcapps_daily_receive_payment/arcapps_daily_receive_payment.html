@@ -55,12 +55,12 @@
 			{% } else { %}
 				<td></td>
 				<td><b>{%= data[i].label %}</b></td>
-				<td>{%= frappe.format(data[i].account, {fieldtype: "Link"}) || "&nbsp;" %}</td>
+				<td>{%= data[i].account %}</td>
 				<td style="text-align: right">
-					{%= data[i].account && format_currency(data[i].debit, filters.presentation_currency || data[i].account_currency) %}
+					{%= format_currency(data[i].debit, filters.presentation_currency) %}
 				</td>
 				<td style="text-align: right">
-					{%= data[i].account && format_currency(data[i].credit, filters.presentation_currency || data[i].account_currency) %}
+					{%= format_currency(data[i].credit, filters.presentation_currency) %}
 				</td>
 			{% } %}
 				<td style="text-align: right">

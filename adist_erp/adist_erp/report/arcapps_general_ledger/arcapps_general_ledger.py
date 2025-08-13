@@ -493,6 +493,11 @@ def get_account_type_map(company):
 def get_result_as_list(data, filters):
 	balance, balance_in_account_currency = 0, 0
 	inv_details = get_supplier_invoice_details()
+	if filters.get("show_item_and_qty"):
+		invoice_numbers = get_invoice_numbers_from_data(data)
+		# print("invoice_numbers", invoice_numbers)
+		item_details = get_invoice_item_details(invoice_numbers)
+		# print("item_details", item_details)
 
 	for d in data:
 		if not d.get("posting_date"):
@@ -503,6 +508,8 @@ def get_result_as_list(data, filters):
 
 		d["account_currency"] = filters.account_currency
 		d["bill_no"] = inv_details.get(d.get("against_voucher"), "")
+		if filters.get("show_item_and_qty") and d.get("voucher_type") in ["Sales Invoice", "Purchase Invoice"] and d.get("voucher_no"):
+			d["item_details"] = item_details.get(d.get("voucher_no"), "")
 
 	return data
 
@@ -517,6 +524,113 @@ def get_supplier_invoice_details():
 		inv_details[d.name] = d.bill_no
 
 	return inv_details
+def get_invoice_numbers_from_data(data):
+	"""Extract unique invoice numbers from the current GL data"""
+	invoice_numbers = {"Sales Invoice": set(), "Purchase Invoice": set()}
+	
+	for d in data:
+		if d.get("voucher_type") in ["Sales Invoice", "Purchase Invoice"] and d.get("voucher_no"):
+			invoice_numbers[d.get("voucher_type")].add(d.get("voucher_no"))
+	
+	return invoice_numbers
+
+def get_invoice_item_details(invoice_numbers):
+    """Get item code and quantity details only for specified invoices"""
+    
+    item_details = {}
+    
+    # Get Sales Invoice items - only for invoices in current data
+    if invoice_numbers.get("Sales Invoice"):
+        sales_invoices = list(invoice_numbers["Sales Invoice"])
+        sales_results = frappe.db.sql("""
+            SELECT 
+                parent, 
+                GROUP_CONCAT(CONCAT(item_name, '-', FORMAT(qty, 0)) SEPARATOR '<br>') AS item_list
+            FROM `tabSales Invoice Item` 
+            WHERE parent IN %(invoices)s
+            GROUP BY parent
+        """, {"invoices": sales_invoices}, as_dict=1)
+        
+        for record in sales_results:
+            items = record.item_list.split('<br>')
+            formatted_items = []
+            
+            for item in items:
+                item = item.strip()
+                if item and '-' in item:
+                    # Split by the last '-' to get quantity (assumes quantity is always at the end)
+                    parts = item.rsplit('-', 1)  # Split from right, only once
+                    if len(parts) == 2:
+                        item_name = parts[0].strip()
+                        qty = parts[1].strip()
+                        
+                        
+                        # Validate that qty is actually a number
+                        try:
+                            float(qty.replace(',', ''))  # Check if qty is numeric
+                            formatted_item = f'<div style="display: flex; justify-content: space-between; margin-bottom: 2px;"><span>{item_name} ,</span><span>  </span><span></span><span>qty:{qty}</span></div>'
+                            formatted_items.append(formatted_item)
+                        except ValueError:
+                            # If qty is not numeric, treat whole string as item name
+                            formatted_item = f'<div style="display: flex; justify-content: space-between; gap: 2px; margin-bottom: 2px;"><span>{item}</span><span>  </span><span>|</span><span>-</span></div>'
+                            formatted_items.append(formatted_item)
+                    else:
+                        # Fallback: treat whole string as item name
+                        formatted_item = f'<div style="display: flex; justify-content: space-between; margin-bottom: 2px;"><span>{item}</span><span>-</span></div>'
+                        formatted_items.append(formatted_item)
+                else:
+                    # No hyphen found, treat as item name only
+                    formatted_item = f'<div style="display: flex; justify-content: space-between; margin-bottom: 2px;"><span>{item}</span><span>-</span></div>'
+                    formatted_items.append(formatted_item)
+            
+            record.item_list = ''.join(formatted_items)
+            item_details[record.parent] = record.item_list
+        print("item_details sales", item_details)
+    
+    # Get Purchase Invoice items - only for invoices in current data
+    if invoice_numbers.get("Purchase Invoice"):
+        purchase_invoices = list(invoice_numbers["Purchase Invoice"])
+        purchase_results = frappe.db.sql("""
+            SELECT 
+                parent, 
+                GROUP_CONCAT(CONCAT(item_name, '-', FORMAT(qty, 0)) SEPARATOR '<br>') as item_list
+            FROM `tabPurchase Invoice Item` 
+            WHERE parent IN %(invoices)s
+            GROUP BY parent
+        """, {"invoices": purchase_invoices}, as_dict=1)
+        
+        for record in purchase_results:
+            items = record.item_list.split('<br>')
+            formatted_items = []
+            
+            for item in items:
+                item = item.strip()
+                if item and '-' in item:
+                    # Split by the last '-' to get quantity
+                    parts = item.rsplit('-', 1)
+                    if len(parts) == 2:
+                        item_name = parts[0].strip()
+                        qty = parts[1].strip()
+                        
+                        try:
+                            float(qty.replace(',', ''))
+                            formatted_item = f'<div style="display: flex; justify-content: space-between; gap: 2px; margin-bottom: 2px;"><span>{item_name} ,</span><span>  </span><span></span><span>qty:{qty}</span></div>'
+                            formatted_items.append(formatted_item)
+                        except ValueError:
+                            formatted_item = f'<div style="display: flex; justify-content: space-between; margin-bottom: 2px;"><span>{item}</span><span></span></div>'
+                            formatted_items.append(formatted_item)
+                    else:
+                        formatted_item = f'<div style="display: flex; justify-content: space-between; margin-bottom: 2px;"><span>{item}</span>|<span>-</span></div>'
+                        formatted_items.append(formatted_item)
+                else:
+                    formatted_item = f'<div style="display: flex; justify-content: space-between; margin-bottom: 2px;"><span>{item}</span>|<span>-</span></div>'
+                    formatted_items.append(formatted_item)
+            
+            record.item_list = ''.join(formatted_items)
+            item_details[record.parent] = record.item_list
+        print("item_details purchase", item_details)
+    
+    return item_details
 
 
 def get_balance(row, balance, debit_field, credit_field):

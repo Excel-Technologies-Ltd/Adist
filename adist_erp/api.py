@@ -45,4 +45,14 @@ def get_last_payment_info(customer_name):
         }
     else:
         return None
+    
+@frappe.whitelist()
+def make_delivered_invoice(sales_invoice_name):
+    """
+    Make a delivered invoice for a sales invoice
+    """
+    invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
+    invoice.delivery_status = "Delivery Completed"
+    invoice.save(ignore_permissions=True)
+
 

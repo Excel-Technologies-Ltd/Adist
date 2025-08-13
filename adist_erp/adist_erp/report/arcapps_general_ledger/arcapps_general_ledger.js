@@ -195,9 +195,16 @@ frappe.query_reports["ArcApps General Ledger"] = {
 			"label": __("Show Remarks"),
 			"fieldtype": "Check",
 			"default": 1
+		},
+		// show item and qty in the report
+		{
+			"fieldname": "show_item_and_qty",
+			"label": __("Show Item and Qty"),
+			"fieldtype": "Check",
+			"default": 0
 		}
 
 	]
 }
 
-erpnext.utils.add_dimensions('General Ledger', 15)
+erpnext.utils.add_dimensions('ArcApps General Ledger', 15)

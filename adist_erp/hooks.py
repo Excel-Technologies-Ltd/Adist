@@ -252,9 +252,8 @@ fixtures = [
                     "Stock Entry-adist_item_group",
                     "Purchase Receipt-adist_item_group",
                     "Payment Entry-adist_sales_person",
-                    "Stock Entry-custom_customer_name"
-                    
-                    
+                    "Stock Entry-custom_customer_name" ,
+                    "Customer-custom_target",                 
                 ],
             ],
         ]
