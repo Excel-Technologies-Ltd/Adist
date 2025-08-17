@@ -11,14 +11,14 @@ frappe.query_reports["ArcApps Daily Receive Payment"] = {
 			"options": "Company",
 			"default": frappe.defaults.get_user_default("Company"),
 			"reqd": 1,
-			"hidden": 1
+			
 		},
 		{
 			"fieldname": "finance_book",
 			"label": __("Finance Book"),
 			"fieldtype": "Link",
 			"options": "Finance Book",
-			"hidden": 1
+			
 		},
 		{
 			"fieldname": "from_date",
@@ -55,7 +55,7 @@ frappe.query_reports["ArcApps Daily Receive Payment"] = {
 			"fieldname": "voucher_no",
 			"label": __("Voucher No"),
 			"fieldtype": "Data",
-			"hidden": 1,
+			
 			on_change: function () {
 				frappe.query_report.set_filter_value('group_by', "Group by Voucher (Consolidated)");
 			}
@@ -67,7 +67,7 @@ frappe.query_reports["ArcApps Daily Receive Payment"] = {
 			"fieldname": "party_type",
 			"label": __("Party Type"),
 			"fieldtype": "Autocomplete",
-			"hidden": 1,
+			
 			options: Object.keys(frappe.boot.party_account_types),
 			on_change: function () {
 				frappe.query_report.set_filter_value('party', "");
@@ -77,7 +77,7 @@ frappe.query_reports["ArcApps Daily Receive Payment"] = {
 			"fieldname": "party",
 			"label": __("Party"),
 			"fieldtype": "MultiSelectList",
-			"hidden": 1,
+			
 			get_data: function (txt) {
 				if (!frappe.query_report.filters) return;
 
@@ -113,13 +113,13 @@ frappe.query_reports["ArcApps Daily Receive Payment"] = {
 			"fieldname": "party_name",
 			"label": __("Party Name"),
 			"fieldtype": "Data",
-			"hidden": 1
+			
 		},
 		{
 			"fieldname": "group_by",
 			"label": __("Group by"),
 			"fieldtype": "Select",
-			"hidden": 1,
+			
 			"options": [
 				"",
 				{
@@ -145,7 +145,7 @@ frappe.query_reports["ArcApps Daily Receive Payment"] = {
 			"fieldname": "tax_id",
 			"label": __("Tax Id"),
 			"fieldtype": "Data",
-			"hidden": 1
+			
 		},
 		{
 			"fieldname": "presentation_currency",
@@ -156,7 +156,7 @@ frappe.query_reports["ArcApps Daily Receive Payment"] = {
 		{
 			"fieldname": "cost_center",
 			"label": __("Cost Center"),
-			"hidden": 1,
+			
 			"fieldtype": "MultiSelectList",
 			get_data: function (txt) {
 				return frappe.db.get_link_options('Cost Center', txt, {
@@ -167,7 +167,7 @@ frappe.query_reports["ArcApps Daily Receive Payment"] = {
 		{
 			"fieldname": "project",
 			"label": __("Project"),
-			"hidden": 1,
+			
 			"fieldtype": "MultiSelectList",
 			get_data: function (txt) {
 				return frappe.db.get_link_options('Project', txt, {
@@ -179,7 +179,7 @@ frappe.query_reports["ArcApps Daily Receive Payment"] = {
 			"fieldname": "include_dimensions",
 			"label": __("Consider Accounting Dimensions"),
 			"fieldtype": "Check",
-			"hidden": 1,
+			
 			"default": 1
 		},
 		{
@@ -191,20 +191,20 @@ frappe.query_reports["ArcApps Daily Receive Payment"] = {
 			"fieldname": "include_default_book_entries",
 			"label": __("Include Default FB Entries"),
 			"fieldtype": "Check",
-			"hidden": 1,
+			
 			"default": 1
 		},
 		{
 			"fieldname": "show_cancelled_entries",
 			"label": __("Show Cancelled Entries"),
 			"fieldtype": "Check",
-			"hidden": 1,
+			
 		},
 		{
 			"fieldname": "show_net_values_in_party_account",
 			"label": __("Show Net Values in Party Account"),
 			"fieldtype": "Check",
-			"hidden": 1
+			
 		},
 		{
 			"fieldname": "show_remarks",
@@ -220,4 +220,5 @@ frappe.query_reports["ArcApps Daily Receive Payment"] = {
     }
 }
 
-erpnext.utils.add_dimensions('General Ledger', 15)
+erpnext.utils.add_dimensions('ArcApps Daily Receive Payment', 15)
+

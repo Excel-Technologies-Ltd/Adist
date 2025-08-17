@@ -1,5 +1,15 @@
-<h2 class="text-center">{%= __("Statement of Account") %}</h2>
-<h4 class="text-center">
+
+<style>
+	.table-bordered td, .print-format .table-bordered th {
+    border: 1px solid #000000;
+}
+
+.print-format .table-bordered td, .print-format .table-bordered th {
+    border: 1px solid #000000;
+}
+</style>
+<h2 class="text-center">{%= __("Receive Payment Report") %}</h2>
+<h5 class="text-center">
 	{% if (filters.party_name) { %}
 		{%= filters.party_name %}
 	{% } else if (filters.party && filters.party.length) { %}
@@ -7,7 +17,7 @@
 	{% } else if (filters.account) { %}
 		{%= filters.account %}
 	{% } %}
-</h4>
+</h5>
 
 <h6 class="text-center">
 	{% if (filters.tax_id) { %}
@@ -20,53 +30,55 @@
 	{%= __("to") %}
 	{%= frappe.datetime.str_to_user(filters.to_date) %}
 </h5>
-<hr>
-<table class="table table-bordered" style="font-size: 10px;">
+<table class="table table-bordered" style="border: 1px solid black; font-size: 9px; color: #000000;">
 	<thead >
-		<tr style="border: 1px solid black;">
-            <th style="width: 12%">{%= __("Date") %}</th>
-            <th style="width: 20%">{%= __("Voucher No") %}</th>
-            <th style="width: 28%">{%= __("Details") %}</th>
-            <th style="width: 13%; text-align: right">{%= __("Debit")%}</th>
-            <th style="width: 13%; text-align: right">{%= __("Credit")%}</th>
-            <th style="width: 14%; text-align: right">{%= __("Balance")%}</th>
+		<tr>
+            <th style="width: 12%; color: #000000;" >{%= __("Date") %}</th>
+            <th style="width: 20%; color: #000000;">{%= __("Voucher No") %}</th>
+            <th style="width: 28%; color: #000000;">{%= __("Details") %}</th>
+            <th style="width: 13%; color: #000000; text-align: right">{%= __("Debit")%}</th>
+            <th style="width: 13%; color: #000000; text-align: right">{%= __("Credit")%}</th>
+            <th style="width: 14%; color: #000000; text-align: right">{%= __("Balance")%}</th>
 		</tr>
 	</thead>
 	<tbody>
 		{% for(var i=0, l=data.length; i<l; i++) { %}
+		{% if ((!(data[i].debit == 0 && data[i].credit == 0 )) || data[i].label) { %}	
 			<tr>
 			{% if(data[i].posting_date) { %}
-				<td>{%= frappe.datetime.str_to_user(data[i].posting_date) %}</td>
-				<td>
+				<td style="padding-bottom: 4px !important; padding-top: 4px !important; align-content: center;">{%= frappe.datetime.str_to_user(data[i].posting_date) %}</td>
+				<td style="padding-bottom: 4px !important; padding-top: 4px !important; align-content: center;">
                     {%= data[i].voucher_no %}
                 </td>
-				<td>
+				<td style="padding-bottom: 4px !important; padding-top: 4px !important; align-content: center;">
                     {%= data[i].account %}
 				</br>
                     {%= data[i].against %}
-					
 				</td>
-				<td style="text-align: right">
+				<td style="text-align: right; padding-bottom: 4px !important; padding-top: 4px !important; align-content: center;">
 					{%= format_currency(data[i].debit, filters.presentation_currency) %}
 				</td>
-				<td style="text-align: right">
+				<td style="text-align: right; padding-bottom: 4px !important; padding-top: 4px !important; align-content: center;">
 					{%= format_currency(data[i].credit, filters.presentation_currency) %}
 				</td>
 			{% } else { %}
-				<td></td>
-				<td><b>{%= data[i].label %}</b></td>
-				<td>{%= data[i].account %}</td>
-				<td style="text-align: right">
+				<td style="padding-bottom: 4px !important; padding-top: 4px !important; align-content: center;"></td>
+				<td style="padding-bottom: 4px !important; padding-top: 4px !important; align-content: center;"><b>{%= data[i].label %}</b></td>
+				<td style="padding-bottom: 4px !important; padding-top: 4px !important; align-content: center;">
+                    {%= data[i].account %}
+				</td>
+				<td style="text-align: right; padding-bottom: 4px !important; padding-top: 4px !important; align-content: center;">
 					{%= format_currency(data[i].debit, filters.presentation_currency) %}
 				</td>
-				<td style="text-align: right">
+				<td style="text-align: right; padding-bottom: 4px !important; padding-top: 4px !important; align-content: center;">
 					{%= format_currency(data[i].credit, filters.presentation_currency) %}
 				</td>
 			{% } %}
-				<td style="text-align: right">
+				<td style="text-align: right; padding-bottom: 4px !important; padding-top: 4px !important; align-content: center;">
 					{%= format_currency(data[i].balance, filters.presentation_currency || data[i].account_currency) %}
 				</td>
 			</tr>
+			{% } %}
 		{% } %}
 	</tbody>
 </table>

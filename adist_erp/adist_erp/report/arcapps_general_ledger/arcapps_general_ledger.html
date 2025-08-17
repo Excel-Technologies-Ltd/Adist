@@ -1,3 +1,13 @@
+<style>
+	.table-bordered td, .print-format .table-bordered th {
+    border: 1px solid #000000;
+}
+
+.print-format .table-bordered td, .print-format .table-bordered th {
+    border: 1px solid #000000;
+}
+</style>
+
 <h2 class="text-center">{%= __("Statement of Account") %}</h2>
 <h4 class="text-center">
 	{% if (filters.party_name) { %}
@@ -21,16 +31,18 @@
 	{%= frappe.datetime.str_to_user(filters.to_date) %}
 </h5>
 <hr>
-<table class="table table-bordered" style="font-size: 9px;">
+<table class="table table-bordered" style="border: 1px solid black; font-size: 9px; color: #000000;">
 	<thead >
 		<tr style="border: 1px solid black;">
-            <th style="width: 12%">{%= __("Date") %}</th>
-            <th style="width: 20%">{%= __("Voucher No") %}</th>
-            <th style="width: 20%">{%= __("Details") %}</th>
-            <th style="width: 8%; text-align: right">{%= __("Debit")%}</th>
-            <th style="width: 8%; text-align: right">{%= __("Credit")%}</th>
-            <th style="width: 8%; text-align: right">{%= __("Balance")%}</th>
-			<th style="width: 24%">{%= __("Item / Qty") %}</th>
+            <th style="width: 12%; color: #000000;">{%= __("Date") %}</th>
+            <th style="width: 20%; color: #000000;">{%= __("Voucher No") %}</th>
+            <th style="width: 20%; color: #000000;">{%= __("Details") %}</th>
+            <th style="width: 8%; text-align: right; color: #000000;">{%= __("Debit")%}</th>
+            <th style="width: 8%; text-align: right; color: #000000;">{%= __("Credit")%}</th>
+            <th style="width: 8%; text-align: right; color: #000000;">{%= __("Balance")%}</th>
+			{% if (filters.show_item_and_qty) { %}
+			<th style="width: 24%; color: #000000;">{%= __("Item / Qty") %}</th>
+			{% } %}
 		</tr>
 	</thead>
 	<tbody>
@@ -69,13 +81,14 @@
 				<td style="text-align: right">
 					{%= format_currency(data[i].balance, filters.presentation_currency || data[i].account_currency) %}
 				</td>
+				{% if (filters.show_item_and_qty) { %}
 				<td>
 					{%= data[i].item_details %}
 				</td>
-				
+				{% } %}
 				
 			</tr>
 		{% } %}
 	</tbody>
 </table>
-<p class="text-right text-muted">Printed On {%= frappe.datetime.str_to_user(frappe.datetime.get_datetime_as_string()) %}</p>
+<p class="text-right text-muted" style="color: #000000;">Printed On {%= frappe.datetime.str_to_user(frappe.datetime.get_datetime_as_string()) %}</p>

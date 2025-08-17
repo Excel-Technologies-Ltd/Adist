@@ -120,6 +120,12 @@ override_doctype_class = {
 doc_events = {
  "Stock Entry":{
      "on_submit":"adist_erp.doc_events.stock_entry.create_material_receipt"
+ },
+ "Sales Invoice":{
+    "on_submit":"adist_erp.doc_events.sales_invoice.sales_invoice_on_submit"
+ },
+ "Sales Order":{
+    "before_cancel":"adist_erp.doc_events.sales_order.on_cancel"
  }
 }
 
@@ -253,7 +259,8 @@ fixtures = [
                     "Purchase Receipt-adist_item_group",
                     "Payment Entry-adist_sales_person",
                     "Stock Entry-custom_customer_name" ,
-                    "Customer-custom_target",                 
+                    "Customer-custom_target",
+                    "Sales Order-custom_status"                 
                 ],
             ],
         ]
