@@ -260,7 +260,19 @@ fixtures = [
                     "Payment Entry-adist_sales_person",
                     "Stock Entry-custom_customer_name" ,
                     "Customer-custom_target",
-                    "Sales Order-custom_status"                 
+                    "Sales Order-custom_status",
+                    "Customer-custom_owner_contact",
+                    "Customer-custom_owner_name",
+                    "Shareholder-custom_owner_contact",
+                    "Employee-custom_owner_contact",
+                    "Supplier-custom_owner_contact",
+                    "Payment Entry-custom_customer_primary_mobile_no",
+                    "Payment Entry-custom_customer_owner_mobile_no",
+                    "Payment Entry-custom_sales_person_phone_no",
+                    "Sales Invoice-custom_customer_primary_mobile_no",
+                    "Sales Invoice-custom_customer_owner_mobile_no",
+                    "Sales Order-custom_customer_primary_mobile_no",
+                    "Sales Order-custom_customer_owner_mobile_no"
                 ],
             ],
         ]
