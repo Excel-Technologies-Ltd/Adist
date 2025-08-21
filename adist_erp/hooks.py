@@ -9,7 +9,7 @@ app_license = "MIT"
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/adist_erp/css/theme.css"
+app_include_css = "/assets/adist_erp/css/theme.css"
 # app_include_css = "/assets/adist_erp/css/adist_erp.css"
 # app_include_js = "/assets/adist_erp/js/adist_erp.js"
 
