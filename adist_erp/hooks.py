@@ -9,6 +9,7 @@ app_license = "MIT"
 # ------------------
 
 # include js, css files in header of desk.html
+# app_include_css = "/assets/adist_erp/css/theme.css"
 # app_include_css = "/assets/adist_erp/css/adist_erp.css"
 # app_include_js = "/assets/adist_erp/js/adist_erp.js"
 
@@ -272,7 +273,17 @@ fixtures = [
                     "Sales Invoice-custom_customer_primary_mobile_no",
                     "Sales Invoice-custom_customer_owner_mobile_no",
                     "Sales Order-custom_customer_primary_mobile_no",
-                    "Sales Order-custom_customer_owner_mobile_no"
+                    "Sales Order-custom_customer_owner_mobile_no",
+                    "Purchase Invoice-custom_pi_date",
+                    "Purchase Invoice-custom_pi_no",
+                    "Purchase Invoice-custom_lc_date",
+                    "Purchase Invoice-custom_actual_supplier",
+                    "Purchase Order-custom_pi_date",
+                    "Purchase Order-custom_pi_no",
+                    "Purchase Order-custom_lc_date",
+                    "Purchase Order-custom_actual_supplier",
+                    "Shareholder-mobile_no",
+                    "Employee-mobile_no"
                 ],
             ],
         ]
