@@ -283,7 +283,8 @@ fixtures = [
                     "Purchase Order-custom_lc_date",
                     "Purchase Order-custom_actual_supplier",
                     "Shareholder-mobile_no",
-                    "Employee-mobile_no"
+                    "Employee-mobile_no",
+                    "Stock Entry-custom_total_qty"
                 ],
             ],
         ]

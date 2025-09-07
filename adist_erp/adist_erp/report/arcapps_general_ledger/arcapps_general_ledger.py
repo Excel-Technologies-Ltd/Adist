@@ -161,7 +161,9 @@ def get_result(filters, account_details):
 def get_gl_entries(filters, accounting_dimensions):
 	currency_map = get_currency(filters)
 	select_fields = """, debit, credit, debit_in_account_currency,
-		credit_in_account_currency """
+		credit_in_account_currency,
+		CASE WHEN party_type = 'Customer' THEN (SELECT adist_sales_person FROM tabCustomer WHERE name = party) ELSE NULL END as adist_sales_person
+  		"""
 
 	if filters.get("show_remarks"):
 		if remarks_length := frappe.db.get_single_value(
@@ -695,6 +697,7 @@ def get_columns(filters):
 		# {"label": _("Remarks"), "fieldname": "remarks", "width": 120},
 		{"label": _("Party Type"), "fieldname": "party_type", "width": 100},
 		{"label": _("Party"), "fieldname": "party", "width": 100},
+  		{"label": _("Sales Person"), "fieldname": "adist_sales_person", "width": 100},
 		{"label": _("Project"), "options": "Project", "fieldname": "project", "width": 100},
 	]
 
