@@ -27,6 +27,7 @@ class PartyLedgerSummaryReport:
 		self.get_additional_columns()
 		self.get_return_invoices()
 		self.get_party_adjustment_amounts()
+		self.get_payment_entry_deductions()
 
 		columns = self.get_columns()
 		data = self.get_data()
@@ -96,8 +97,22 @@ class PartyLedgerSummaryReport:
 				"width": 120,
 			},
 			{
-				"label": _("Invoiced Amount"),
+				"label": _("Invoice Amount"),
 				"fieldname": "invoiced_amount",
+				"fieldtype": "Currency",
+				"options": "currency",
+				"width": 120,
+			},
+			{
+				"label": _(credit_or_debit_note),
+				"fieldname": "return_amount",
+				"fieldtype": "Currency",
+				"options": "currency",
+				"width": 120,
+			},
+			{
+				"label": _("Actual Invoice Amount"),
+				"fieldname": "actual_invoice_amount",
 				"fieldtype": "Currency",
 				"options": "currency",
 				"width": 120,
@@ -110,8 +125,8 @@ class PartyLedgerSummaryReport:
 				"width": 120,
 			},
 			{
-				"label": _(credit_or_debit_note),
-				"fieldname": "return_amount",
+				"label": _("Collection Discount"),
+				"fieldname": "collection_discount",
 				"fieldtype": "Currency",
 				"options": "currency",
 				"width": 120,
@@ -202,6 +217,8 @@ class PartyLedgerSummaryReport:
 						"invoiced_amount": 0,
 						"paid_amount": 0,
 						"return_amount": 0,
+						"actual_invoice_amount": 0,
+						"collection_discount": 0,
 						"closing_balance": 0,
 						"currency": company_currency,
 					}
@@ -220,7 +237,10 @@ class PartyLedgerSummaryReport:
 			if gle.posting_date < self.filters.from_date or gle.is_opening == "Yes":
 				self.party_data[gle.party].opening_balance += amount
 			else:
-				if amount > 0:
+				if gle.voucher_type == "Payment Entry":
+					# All Payment Entry GL entries go to paid_amount (net of return allocations)
+					self.party_data[gle.party].paid_amount -= amount
+				elif amount > 0:
 					self.party_data[gle.party].invoiced_amount += amount
 				elif gle.voucher_no in self.return_invoices:
 					self.party_data[gle.party].return_amount -= amount
@@ -236,14 +256,25 @@ class PartyLedgerSummaryReport:
 				or row.return_amount
 				or row.closing_balance
 			):
-				total_party_adjustment = sum(
-					amount for amount in self.party_adjustment_details.get(party, {}).values()
-				)
-				row.paid_amount -= total_party_adjustment
-
 				adjustments = self.party_adjustment_details.get(party, {})
 				for account in self.party_adjustment_accounts:
 					row["adj_" + scrub(account)] = adjustments.get(account, 0)
+
+				# Collection Discount = Payment Entry Deduction amounts
+				row.collection_discount = self.payment_deductions_by_party.get(party, 0)
+
+				# Paid Amount = total payments minus collection discount (deductions)
+				row.paid_amount -= row.collection_discount
+
+				# Actual Invoice Amount = Invoice Amount - Credit Note
+				row.actual_invoice_amount = row.invoiced_amount - row.return_amount
+
+				# Closing Balance = Opening Balance + Invoice Amount - (Credit Note + Paid Amount + Collection Discount)
+				row.closing_balance = (
+					row.opening_balance
+					+ row.invoiced_amount
+					- (row.return_amount + row.paid_amount + row.collection_discount)
+				)
 
 				out.append(row)
 
@@ -459,6 +490,29 @@ class PartyLedgerSummaryReport:
 						self.party_adjustment_details.setdefault(party, {})
 						self.party_adjustment_details[party].setdefault(account, 0)
 						self.party_adjustment_details[party][account] += amount
+
+
+	def get_payment_entry_deductions(self):
+		"""Get Payment Entry Deduction amounts grouped by party for the report period"""
+		self.payment_deductions_by_party = frappe._dict()
+
+		deductions = frappe.db.sql(
+			"""
+			select pe.party, sum(ped.amount) as total_deduction
+			from `tabPayment Entry Deduction` ped
+			inner join `tabPayment Entry` pe on pe.name = ped.parent
+			where pe.docstatus = 1
+				and pe.party_type = %(party_type)s
+				and pe.posting_date between %(from_date)s and %(to_date)s
+				and pe.company = %(company)s
+			group by pe.party
+			""",
+			self.filters,
+			as_dict=True,
+		)
+
+		for d in deductions:
+			self.payment_deductions_by_party[d.party] = d.total_deduction
 
 
 def execute(filters=None):
