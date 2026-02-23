@@ -1,7 +1,7 @@
 // Copyright (c) 2026, Advance Distributions and contributors
 // For license information, please see license.txt
 
-frappe.query_reports["Short Term Loan Summary"] = {
+frappe.query_reports["ArcApps LC Summary"] = {
 	filters: [
 		{
 			fieldname: "company",
@@ -28,10 +28,10 @@ frappe.query_reports["Short Term Loan Summary"] = {
 			width: "60px",
 		},
 		{
-			fieldname: "short_term_loan",
-			label: __("Short Term Loan"),
+			fieldname: "lc",
+			label: __("LC"),
 			fieldtype: "Link",
-			options: "Short Term Loan",
+			options: "LC",
 		},
 		{
 			fieldname: "account",
@@ -60,23 +60,6 @@ frappe.query_reports["Short Term Loan Summary"] = {
 					},
 				};
 			},
-		},
-		{
-			fieldname: "against",
-			label: __("Against"),
-			fieldtype: "Data",
-		},
-		{
-			fieldname: "voucher_type",
-			label: __("Voucher Type"),
-			fieldtype: "Link",
-			options: "DocType",
-		},
-		{
-			fieldname: "voucher_no",
-			label: __("Voucher No"),
-			fieldtype: "Dynamic Link",
-			options: "voucher_type",
 		},
 	],
 };

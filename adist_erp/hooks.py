@@ -133,23 +133,17 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"adist_erp.tasks.all"
-# 	],
-# 	"daily": [
-# 		"adist_erp.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"adist_erp.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"adist_erp.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"adist_erp.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"daily": [
+		"adist_erp.tasks.daily"
+	],
+	"cron": {
+		# Every day at 12:05 AM
+		"5 0 * * *": [
+			"adist_erp.utils.save_number_card_date.save_number_card_date"
+		],
+	},
+}
 
 # Testing
 # -------
