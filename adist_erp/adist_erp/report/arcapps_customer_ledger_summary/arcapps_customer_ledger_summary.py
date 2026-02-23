@@ -491,6 +491,11 @@ class PartyLedgerSummaryReport:
 						self.party_adjustment_details[party].setdefault(account, 0)
 						self.party_adjustment_details[party][account] += amount
 
+		# Exclude Collection Discount accounts — already shown in the dedicated column
+		self.party_adjustment_accounts = {
+			a for a in self.party_adjustment_accounts if "collection discount" not in a.lower()
+		}
+
 
 	def get_payment_entry_deductions(self):
 		"""Get Payment Entry Deduction amounts grouped by party for the report period"""
