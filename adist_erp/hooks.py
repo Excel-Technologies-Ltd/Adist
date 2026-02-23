@@ -134,9 +134,9 @@ doc_events = {
 # ---------------
 
 scheduler_events = {
-	"daily": [
-		"adist_erp.tasks.daily"
-	],
+	# "daily": [
+	# 	"adist_erp.tasks.daily"
+	# ],
 	"cron": {
 		# Every day at 12:05 AM
 		"5 0 * * *": [
